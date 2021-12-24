@@ -1,6 +1,5 @@
 package org.comroid.contabo.model.image;
 
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import org.comroid.api.ContextualProvider;
 import org.comroid.api.Polyfill;
 import org.comroid.api.UUIDContainer;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.UUID;
 
-public class Image extends ContaboModel implements UUIDContainer, Described {
+public final class Image extends ContaboModel implements UUIDContainer, Described {
     public static final GroupBind<Image> Type = ContaboModel.Type.subGroup("image");
     public static final VarBind<Image, String, UUID, UUID> ID
             = Type.createBind("imageId")
@@ -49,11 +48,11 @@ public class Image extends ContaboModel implements UUIDContainer, Described {
             .extractAs(StandardValueType.STRING)
             .andRemap(Version::new)
             .build();
-    public static final VarBind<Image, String, String, String> FORMAT
+    public static final VarBind<Image, String, String, String> FORMAT // todo better Parsing
             = Type.createBind("format")
             .extractAs(StandardValueType.STRING)
             .build();
-    public static final VarBind<Image, String, String, String> STATUS
+    public static final VarBind<Image, String, String, String> STATUS // todo better Parsing
             = Type.createBind("status")
             .extractAs(StandardValueType.STRING)
             .build();
@@ -64,7 +63,7 @@ public class Image extends ContaboModel implements UUIDContainer, Described {
     public static final VarBind<Image, UniObjectNode, Tag, HashSet<Tag>> TAGS
             = Type.createBind("tags")
             .extractAsArray()
-            .andResolve((img, obj) -> img.resolveTag(obj))
+            .andResolve(ContaboModel::resolveTag)
             .intoCollection(HashSet<Tag>::new)
             .build();
     public final Ref<UUID> id = getComputedReference(ID);

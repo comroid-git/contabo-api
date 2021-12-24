@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class Tag extends ContaboModel  {
+public final class Tag extends ContaboModel {
     public static final GroupBind<Tag> Type = ContaboModel.Type.subGroup("tag");
     public static final VarBind<Tag, Integer, Integer, Integer> ID
             = Type.createBind("tagId")

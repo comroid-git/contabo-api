@@ -12,6 +12,11 @@ public final class ContaboConnection implements ContextualProvider.Underlying {
     private final REST rest;
     private final String bearerToken;
 
+    @Override
+    public ContextualProvider getUnderlyingContextualProvider() {
+        return context;
+    }
+
     public ContaboConnection(String accessToken) {
         this(null, accessToken);
     }
@@ -25,10 +30,5 @@ public final class ContaboConnection implements ContextualProvider.Underlying {
 
     private <T, C extends ContaboModel> REST.Request<T> request(Class<C> type, ContaboEndpoint endpoint, Object... args) {
         return rest.request(GroupBind.find(type))
-    }
-
-    @Override
-    public ContextualProvider getUnderlyingContextualProvider() {
-        return context;
     }
 }

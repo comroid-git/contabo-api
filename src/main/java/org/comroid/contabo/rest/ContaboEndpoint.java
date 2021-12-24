@@ -91,12 +91,6 @@ public enum ContaboEndpoint implements AccessibleEndpoint {
     private final String[] regExp;
     private final Pattern pattern;
 
-    ContaboEndpoint(String extension, @Language("RegExp") String... regExp) {
-        this.extension = extension;
-        this.regExp = regExp;
-        this.pattern = buildUrlPattern();
-    }
-
     @Override
     public String getUrlBase() {
         return URL_BASE;
@@ -115,5 +109,11 @@ public enum ContaboEndpoint implements AccessibleEndpoint {
     @Override
     public String[] getRegExpGroups() {
         return regExp;
+    }
+
+    ContaboEndpoint(String extension, @Language("RegExp") String... regExp) {
+        this.extension = extension;
+        this.regExp = regExp;
+        this.pattern = buildUrlPattern();
     }
 }

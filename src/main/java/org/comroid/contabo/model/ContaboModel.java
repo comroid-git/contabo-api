@@ -2,7 +2,11 @@ package org.comroid.contabo.model;
 
 import org.comroid.api.ContextualProvider;
 import org.comroid.api.Named;
+import org.comroid.api.Rewrapper;
+import org.comroid.contabo.model.image.Image;
+import org.comroid.contabo.model.instance.Instance;
 import org.comroid.contabo.model.tag.Tag;
+import org.comroid.contabo.model.user.role.Role;
 import org.comroid.mutatio.model.Ref;
 import org.comroid.uniform.node.UniObjectNode;
 import org.comroid.util.StandardValueType;
@@ -12,11 +16,11 @@ import org.comroid.varbind.container.DataContainerBase;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.Set;
+import java.util.UUID;
 
 public abstract class ContaboModel extends DataContainerBase<ContaboModel> implements Named {
     public static final GroupBind<ContaboModel> Type = new GroupBind<>("com.contabo");
-    public static final VarBind<ContaboModel, String, String, String> TENANT_ID
+    public static final VarBind<ContaboModel, String, String, String> TENANT_ID // todo better Parsing
             = Type.createBind("tenantId")
             .extractAs(StandardValueType.STRING)
             .build();
@@ -48,10 +52,6 @@ public abstract class ContaboModel extends DataContainerBase<ContaboModel> imple
     public final Ref<String> errorMessage = getComputedReference(ERROR_MESSAGE);
     public final Ref<Instant> lastModified = getComputedReference(LAST_MODIFIED);
 
-    protected ContaboModel(ContextualProvider context, @Nullable UniObjectNode initialData) {
-        super(context, initialData);
-    }
-
     public String getTenantID() {
         return tenantID.assertion();
     }
@@ -74,7 +74,27 @@ public abstract class ContaboModel extends DataContainerBase<ContaboModel> imple
         return name.orElse("<no name specified>");
     }
 
-    protected Tag resolveTag(UniObjectNode obj) {
+    protected ContaboModel(ContextualProvider context, @Nullable UniObjectNode initialData) {
+        super(context, initialData);
+    }
+
+    public static Tag resolveTag(ContextualProvider ctx, UniObjectNode obj) {
+        return null; // todo
+    }
+
+    public static Role resolveRole(ContextualProvider ctx, UniObjectNode obj) {
+        return null; // todo
+    }
+
+    public static Rewrapper<Image> resolveImage(ContextualProvider ctx, UUID imageId) {
+        return null; // todo
+    }
+
+    public static Rewrapper<Instance> resolveInstance(ContextualProvider ctx, long instanceId) {
+        return null; // todo
+    }
+
+    public static Rewrapper<Tag> resolveTag(ContextualProvider ctx, long tagId) {
         return null; // todo
     }
 }
