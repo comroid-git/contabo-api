@@ -21,7 +21,7 @@ public final class TagAssignment extends ContaboModel {
             = Type.createBind("tagName")
             .extractAs(StandardValueType.STRING)
             .build();
-    public static final VarBind<TagAssignment, String, ResourceType, ResourceType> RESOURCE_TYPE // todo better parsing
+    public static final VarBind<TagAssignment, String, ResourceType, ResourceType> RESOURCE_TYPE
             = Type.createBind("resourceType")
             .extractAs(StandardValueType.STRING)
             .andRemap(ResourceType::valueOf)
