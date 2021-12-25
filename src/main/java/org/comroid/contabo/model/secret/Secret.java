@@ -13,7 +13,7 @@ import java.time.Instant;
 
 public final class Secret extends ContaboModel {
     public static final GroupBind<Secret> Type = ContaboModel.Type.subGroup("secret");
-    public static final VarBind<Secret, Long, Long, Long> SECRET_ID
+    public static final VarBind<Secret, Long, Long, Long> ID
             = Type.createBind("secretId")
             .extractAs(StandardValueType.LONG)
             .build();
@@ -35,7 +35,7 @@ public final class Secret extends ContaboModel {
             .extractAs(StandardValueType.STRING)
             .andRemap(Instant::parse)
             .build();
-    public final Ref<Long> id = getComputedReference(SECRET_ID);
+    public final Ref<Long> id = getComputedReference(ID);
     public final Ref<String> type = getComputedReference(TYPE);
     public final Ref<String> value = getComputedReference(VALUE);
     public final Ref<Instant> createdDate = getComputedReference(CREATED_DATE);

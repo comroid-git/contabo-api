@@ -6,9 +6,14 @@ import org.comroid.api.UUIDContainer;
 import org.comroid.api.os.OS;
 import org.comroid.common.Version;
 import org.comroid.common.info.Described;
+import org.comroid.contabo.ContaboConnection;
 import org.comroid.contabo.model.ContaboModel;
 import org.comroid.contabo.model.tag.Tag;
+import org.comroid.contabo.rest.ContaboEndpoint;
 import org.comroid.mutatio.model.Ref;
+import org.comroid.restless.HTTPStatusCodes;
+import org.comroid.restless.REST;
+import org.comroid.restless.body.BodyBuilderType;
 import org.comroid.uniform.node.UniObjectNode;
 import org.comroid.util.StandardValueType;
 import org.comroid.varbind.bind.GroupBind;
@@ -17,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class Image extends ContaboModel implements UUIDContainer, Described {
     public static final GroupBind<Image> Type = ContaboModel.Type.subGroup("image");
@@ -89,5 +95,26 @@ public final class Image extends ContaboModel implements UUIDContainer, Describe
 
     public Image(ContextualProvider context, @Nullable UniObjectNode initialData) {
         super(context, initialData);
+    }
+
+    public CompletableFuture<Image> update(String name, String description) {
+        ContaboConnection connection = requireFromContext(ContaboConnection.class);
+        return connection.request(Image.Type, ContaboEndpoint.SPECIFIC_IMAGE, getUUID())
+                .method(REST.Method.PATCH)
+                .buildBody(BodyBuilderType.OBJECT, obj -> {
+                    obj.put("name", name);
+                    obj.put("description", description);
+                })
+                .execute()
+                .thenCompose(resp -> connection.requestImage(getUUID()));
+    }
+
+    public CompletableFuture<Void> delete() {
+        ContaboConnection connection = requireFromContext(ContaboConnection.class);
+        return connection.request(ContaboEndpoint.SPECIFIC_IMAGE, getUUID())
+                .method(REST.Method.DELETE)
+                .expect(HTTPStatusCodes.NO_CONTENT)
+                .execute()
+                .thenAccept(resp -> connection.deleteImage(getUUID()));
     }
 }

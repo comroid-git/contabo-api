@@ -3,9 +3,14 @@ package org.comroid.contabo.model.instance;
 import org.comroid.api.ContextualProvider;
 import org.comroid.api.MacAddress;
 import org.comroid.api.os.OS;
+import org.comroid.contabo.ContaboConnection;
 import org.comroid.contabo.model.ContaboModel;
 import org.comroid.contabo.model.image.Image;
+import org.comroid.contabo.rest.ContaboEndpoint;
 import org.comroid.mutatio.model.Ref;
+import org.comroid.restless.HTTPStatusCodes;
+import org.comroid.restless.REST;
+import org.comroid.restless.body.BodyBuilderType;
 import org.comroid.uniform.node.UniObjectNode;
 import org.comroid.util.StandardValueType;
 import org.comroid.varbind.bind.GroupBind;
@@ -17,10 +22,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class Instance extends ContaboModel {
     public static final GroupBind<Instance> Type = ContaboModel.Type.subGroup("instance");
-    public static final VarBind<Instance, Long, Long, Long> INSTANCE_ID
+    public static final VarBind<Instance, Long, Long, Long> ID
             = Type.createBind("instanceId")
             .extractAs(StandardValueType.LONG)
             .build();
@@ -96,7 +102,7 @@ public final class Instance extends ContaboModel {
             = Type.createBind("productType")
             .extractAs(StandardValueType.STRING)
             .build();
-    public final Ref<Long> instanceId = getComputedReference(INSTANCE_ID);
+    public final Ref<Long> instanceId = getComputedReference(ID);
     public final Ref<String> region = getComputedReference(REGION);
     public final Ref<String> productId = getComputedReference(PRODUCT_ID);
     public final Ref<Image> image = getComputedReference(IMAGE);
@@ -114,7 +120,87 @@ public final class Instance extends ContaboModel {
     public final Ref<HashSet<AddonInfo>> addons = getComputedReference(ADDONS);
     public final Ref<String> productType = getComputedReference(PRODUCT_TYPE);
 
+    public long getID() {
+        return instanceId.assertion();
+    }
+
     public Instance(ContextualProvider context, @Nullable UniObjectNode initialData) {
         super(context, initialData);
+    }
+
+    public CompletableFuture<Instance> reinstall(Image image) {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.SPECIFIC_INSTANCE, getID())
+                .method(REST.Method.PATCH)
+                .buildBody(BodyBuilderType.OBJECT, obj -> obj.put("imageId", image.getUUID()))
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.OK)
+                        return this;
+                    throw new RuntimeException("Could not reinstall Instance; response was " + resp);
+                });
+    }
+
+    public CompletableFuture<Instance> cancel() {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.CANCEL_INSTANCE, getID())
+                .method(REST.Method.POST)
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.OK)
+                        return this;
+                    throw new RuntimeException("Could not cancel Instance; response was " + resp);
+                });
+    }
+
+    public CompletableFuture<Instance> start() {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.START_INSTANCE, getID())
+                .method(REST.Method.POST)
+                .expect(HTTPStatusCodes.CREATED)
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.CREATED)
+                        return this;
+                    throw new RuntimeException("Could not start Instance; response was " + resp);
+                });
+    }
+
+    public CompletableFuture<Instance> restart() {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.RESTART_INSTANCE, getID())
+                .method(REST.Method.POST)
+                .expect(HTTPStatusCodes.CREATED)
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.CREATED)
+                        return this;
+                    throw new RuntimeException("Could not restart Instance; response was " + resp);
+                });
+    }
+
+    public CompletableFuture<Instance> stop() {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.STOP_INSTANCE, getID())
+                .method(REST.Method.POST)
+                .expect(HTTPStatusCodes.CREATED)
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.CREATED)
+                        return this;
+                    throw new RuntimeException("Could not stop Instance; response was " + resp);
+                });
+    }
+
+    public CompletableFuture<Instance> rollback(Snapshot snapshot) {
+        return requireFromContext(ContaboConnection.class)
+                .request(Type, ContaboEndpoint.INSTANCE_SNAPSHOT_ROLLBACK, getID(), snapshot.getID())
+                .method(REST.Method.POST)
+                .execute()
+                .thenApply(resp -> {
+                    if (resp.getStatusCode() == HTTPStatusCodes.OK)
+                        return this;
+                    throw new RuntimeException("Could not rollback Instance; response was " + resp);
+                });
     }
 }

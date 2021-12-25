@@ -17,9 +17,10 @@ public final class Role extends ContaboModel {
             = Type.createBind("roleId")
             .extractAs(StandardValueType.LONG)
             .build();
-    public static final VarBind<Role, String, String, String> TYPE
+    public static final VarBind<Role, String, RoleType, RoleType> TYPE
             = Type.createBind("roleType") // todo better parsing
             .extractAs(StandardValueType.STRING)
+            .andRemap(RoleType::valueOf)
             .build();
     public static final VarBind<Role, UniObjectNode, ApiPermission, HashSet<ApiPermission>> API_PERMISSIONS
             = Type.createBind("apiPermissions")
@@ -34,11 +35,12 @@ public final class Role extends ContaboModel {
             .intoCollection(HashSet<ResourcePermission>::new)
             .build();
     public final Ref<Long> id = getComputedReference(ID);
-    public final Ref<String> type = getComputedReference(TYPE);
+    public final Ref<RoleType> type = getComputedReference(TYPE);
     public final Ref<HashSet<ApiPermission>> apiPermissions = getComputedReference(API_PERMISSIONS);
     public final Ref<HashSet<ResourcePermission>> resourcePermissions = getComputedReference(RESOURCE_PERMISSIONS);
 
     public Role(ContextualProvider context, @Nullable UniObjectNode initialData) {
         super(context, initialData);
     }
+
 }

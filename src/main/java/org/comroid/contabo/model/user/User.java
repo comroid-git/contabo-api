@@ -61,7 +61,7 @@ public final class User extends ContaboModel {
     public static final VarBind<User, UniObjectNode, Role, HashSet<Role>> ROLES
             = Type.createBind("roles")
             .extractAsArray()
-            .andResolve((it, role) -> resolveRole(role))
+            .andResolve(ContaboModel::resolveRole)
             .intoCollection(HashSet<Role>::new)
             .build();
     public final Ref<UUID> id = getComputedReference(ID);
